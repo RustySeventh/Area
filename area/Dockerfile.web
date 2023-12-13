@@ -1,0 +1,19 @@
+FROM instrumentisto/flutter:latest AS build
+
+WORKDIR /app
+
+COPY . .
+
+RUN flutter pub get
+RUN flutter build web --dart-define=HOST_IP=10.18.206.135
+
+FROM nginx:alpine
+
+# Copiez les fichiers de build de Flutter dans le répertoire d'origine de Nginx
+COPY --from=build /app/build/web /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+# Exposez le port 80 pour accéder à l'application Flutter
+EXPOSE 80
+
+# Commande pour démarrer le serveur Nginx
+CMD ["nginx", "-g", "daemon off;"]

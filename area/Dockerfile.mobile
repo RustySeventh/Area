@@ -1,0 +1,8 @@
+FROM instrumentisto/flutter:latest
+
+WORKDIR /app
+
+COPY . .
+
+RUN flutter pub get
+RUN flutter build apk --dart-define=HOST_IP=10.18.206.135

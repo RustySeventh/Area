@@ -1,0 +1,4 @@
+Area_server/Area_app/migrations
+Area_server/Area_app/db.sqlite3
+*__pycache__
+db.sqlite3

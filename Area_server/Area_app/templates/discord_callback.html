@@ -1,0 +1,21 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Discord OAuth Callback</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <h1>Discord OAuth Callback</h1>
+    {% if authenticated %}
+    <p>Accès autorisé ! Vous pouvez maintenant utiliser l'API Discord.</p>
+    <p>Vous pouvez à présent fermer cette page.</p>
+    {% else %}
+    <p>Erreur d'authentification. Veuillez réessayer.</p>
+    {% endif %}
+    {% if error %}
+    <p>Erreur : {{ error }}</p>
+    {% endif %}
+</body>
+</html>

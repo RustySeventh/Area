@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./Area_server
+      dockerfile: Dockerfile.server
+    command: python manage.py runserver 0.0.0.0:8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    env_file:
+      - ./Area_server/.env.dev
+
+  client_mobile:
+    build:
+      context: ./area
+      dockerfile: Dockerfile.mobile
+    command: tail -f /dev/null
+    volumes:
+      - flutter_app:/app/build/app/outputs/flutter-apk/
+
+  client_web:
+    build:
+      context: ./area
+      dockerfile: Dockerfile.web
+    volumes:
+      - flutter_app:/app/shared
+    ports:
+      - 8081:80
+    depends_on:
+      - client_mobile
+      - server
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=Area
+      - POSTGRES_PASSWORD=GIGAPASSWORDDELAMORTQUITUE
+
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    restart: always
+
+  celery-worker:
+    build:
+      context: ./Area_server
+      dockerfile: Dockerfile.celery
+    command: -A Area_server worker -l info
+    entrypoint: celery
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./Area_server/.env.dev
+    links:
+      - redis
+    # Autres configurations pour le worker Celery
+
+  celery-beat:
+    build:
+      context: ./Area_server
+      dockerfile: Dockerfile.celery
+    command: -A Area_server beat -l info
+    entrypoint: celery
+    depends_on:
+      - celery-worker
+      - db
+      - redis
+    env_file:
+      - ./Area_server/.env.dev
+    links:
+      - redis
+
+volumes:
+  flutter_app:
